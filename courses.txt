@@ -1,4 +1,1 @@
 ECON 101 003 false false atang930606@gmail.com
-ECON 101 003 false true atang930606@gmail.com
-ECON 101 003 true false atang930606@gmail.com
-ECON 101 003 true true atang930606@gmail.com
