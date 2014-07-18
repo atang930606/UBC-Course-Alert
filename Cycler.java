@@ -2,6 +2,14 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 
+/* brandon's imports */
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.jsoup.nodes.Node;
+import java.io.IOException;
+
 public class Cycler{
 	final String NUM_ARGS = 5;
 
@@ -15,6 +23,7 @@ public class Cycler{
 		String course;
 		String section;
 		String email;
+		/* Whether or not the client wants to check restricted seats */
 		boolean restricted;
 
 
@@ -66,7 +75,30 @@ public class Cycler{
 	 * Given the html to the page, return true if available seat exists
 	 * Check course.restricted to see if you need to also check for restricted.
 	 */
-	public static boolean hasSeat(Course c, String html){
+	public static boolean hasSeat(Course c, String url){
+
+		try{
+			Document doc = Jsoup.connect(url).get();
+			Elements elements = doc.getElementsByClass("table-nonfluid");
+			Element table = elements.get(1);	
+			String generalSeats = table.child(1).child(2).child(1).child(0).ownText();
+			String restrictedSeats = table.child(1).child(3).child(1).child(0).ownText();
+			
+			if(Integer.parseInt(generalSeats) > 0){
+				return true;
+			}
+			else if(c.restricted && Integer.parseInt(restrictedSeats) > 0){
+				return true;
+			}
+			return false;
+
+
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+
+		return false;
 
 	}
 
