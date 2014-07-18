@@ -3,31 +3,38 @@ import java.net.*;
 import java.io.*;
 
 public class Cycler{
-	final String NUM_ARGS = 5;
+	static final int NUM_ARGS = 6;
+	static ArrayList<Course> courses;
 
 	// read in a file line by line, [dept course section regular restricted] split by spaces
 	// send url request and get html based on timer for array of courses
 	// parse html to find seat numbers
 	// call static email function 
 
+	/**
+	 * Course structure to contain course information.
+	 */
 	static class Course{
 		String dept;
 		String course;
 		String section;
 		String email;
 		boolean restricted;
+		boolean ubcv;
 
 
-		public Course(String dept, String course, String section, boolean restricted, String email){
+		public Course(String dept, String course, String section, boolean restricted, boolean ubcv, String email){
 			this.dept = dept;
 			this.course = course;
 			this.section = section;
 			this.restricted = restricted;
+			this.ubcv = ubcv;
+			this.email = email;
 		}
 
 		public String toString(){
-			System.out.println(dept + " " + course + " " + section + "\nCheck Restricted: "
-				 + restricted + "\nEmail To: " + email);
+			return ("DEPT: " + dept + "\nCOURSE: " + course + "\nSECTION: " + section + "\nCheck Restricted: "
+				 + restricted + "\nSCHOOL: " + ((ubcv) ? "UBCV" : "UBCO") +"\nEmail To: " + email);
 		}
 	}
 
@@ -35,11 +42,12 @@ public class Cycler{
 	 * Read in from courses text file line by line and return an arraylist of courses
 	 * @param filename name of textfile to read
 	 */
-	public ArrayList<Course> readCourses(String filename){
+	public static ArrayList<Course> readCourses(String filename){
 		ArrayList<Course> result = new ArrayList<Course>();
+		FileReader fr = null;
 		try{
-			// Create InputStreamReader
-			FileReader fr = new FileReader(filename);
+			// Create InputStreamReader and Buffered Reader to read lines of file.
+			fr = new FileReader(filename);
 			BufferedReader br = new BufferedReader(fr);
 			String line;
 
@@ -48,16 +56,51 @@ public class Cycler{
 				if(tokens.length != NUM_ARGS){
 					throw new Exception("Arguments wrong in courses.txt");
 				}
-				Course c = new Course(tokens[0], tokens[1], tokens[2], tokens[3], tokens[4]);
-
+				Course c = new Course(tokens[0], tokens[1], tokens[2], Boolean.valueOf(tokens[3]), Boolean.valueOf(tokens[4]), tokens[5]);
+				result.add(c);
 			}
 
+			fr.close();
 		}catch(Exception e){
 			System.out.println("ERROR: " + e);
-		}finally{
-			if(fr != null){
-				fr.close();
+		}
+		return result;
+	}
+
+	/**
+	 * Given an ArrayList of courses, check if seats exist.
+	 */
+	public static void checkSeats(ArrayList<Course> courses){
+		URL url;
+		try{
+			Iterator itr = courses.iterator();
+			while(itr.hasNext()){
+				Course c = (Course) itr.next();
+				/* Form the url */
+				url = new URL("https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas" + 
+					"&req=5" + 
+					"&dept=" + c.dept +
+					"&course=" + c.course +
+					"&section=" + c.section +
+					"&campuscd=" + ((c.ubcv) ? "UBC" : "UBCO"));
+				/* Wrap BufferedReader around html */
+				BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+				String line;
+				String html;
+				StringBuffer sb = new StringBuffer();
+				while((line = br.readLine()) != null){
+					sb.append(line);
+				}
+				html = sb.toString();
+				/* Check if course has opening */
+				if(hasSeat(c, html)){
+					System.out.println(c + "HAS SEAT!");
+					itr.remove();
+				}
+
 			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 
 	}
@@ -67,11 +110,32 @@ public class Cycler{
 	 * Check course.restricted to see if you need to also check for restricted.
 	 */
 	public static boolean hasSeat(Course c, String html){
-
+		return false;
 	}
 
 	public static void main(String[] args) {
-		
+
+		/* Read in the Courses to be checked */
+		courses = readCourses("courses.txt");
+		for(Course c : courses){
+			System.out.println(c);
+		}
+
+		/* Initialize Timer */
+		Timer t = new Timer();
+		TimerTask tt = new TimerTask(){
+			@Override
+			public void run(){
+				// Check if courses still has courses not found.
+				if(courses.size() > 0){
+					checkSeats(courses);
+				}
+			}
+		};
+
+		/* Start the timer to check all of the courses every 60 seconds */
+		t.schedule(tt, 0, 60000);
+
 	}
 
 
