@@ -10,7 +10,7 @@ import javax.mail.internet.MimeMessage;
  
 public class Mailer{
  
-	public static void SendMail2(Course course) {
+	public static void sendMail2(Course course) {
  
 		final String username = "ubccoursenotif@gmail.com";
 		final String password = "btang930606";
@@ -39,7 +39,7 @@ public class Mailer{
 			message.setSubject("UBC Course Notification");
 			// email text
 			message.setText("Hi,"
-				+ "\n\n Your course" +course.department+ " " + course.course + " " + 
+				+ "\n\n Your course" +course.dept+ " " + course.course + " " + 
 					course.section + " is open!");
  
 			Transport.send(message);
