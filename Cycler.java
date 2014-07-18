@@ -84,7 +84,6 @@ public class Cycler{
 					"&campuscd=" + ((c.ubcv) ? "UBC" : "UBCO");
 				/* Check if course has opening */
 				if(hasSeat(c, url)){
-					System.out.println(c + "HAS SEAT!");
 					itr.remove();
 				}
 
