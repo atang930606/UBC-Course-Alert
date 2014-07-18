@@ -80,29 +80,19 @@ public class Cycler{
 	 * Given an ArrayList of courses, check if seats exist.
 	 */
 	public static void checkSeats(ArrayList<Course> courses){
-		URL url;
 		try{
 			Iterator itr = courses.iterator();
 			while(itr.hasNext()){
 				Course c = (Course) itr.next();
 				/* Form the url */
-				url = new URL("https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas" + 
+				String url = "https://courses.students.ubc.ca/cs/main?pname=subjarea&tname=subjareas" + 
 					"&req=5" + 
 					"&dept=" + c.dept +
 					"&course=" + c.course +
 					"&section=" + c.section +
-					"&campuscd=" + ((c.ubcv) ? "UBC" : "UBCO"));
-				/* Wrap BufferedReader around html */
-				BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-				String line;
-				String html;
-				StringBuffer sb = new StringBuffer();
-				while((line = br.readLine()) != null){
-					sb.append(line);
-				}
-				html = sb.toString();
+					"&campuscd=" + ((c.ubcv) ? "UBC" : "UBCO");
 				/* Check if course has opening */
-				if(hasSeat(c, html)){
+				if(hasSeat(c, url)){
 					System.out.println(c + "HAS SEAT!");
 					itr.remove();
 				}
