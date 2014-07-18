@@ -18,7 +18,7 @@ public class Cycler{
 		boolean restricted;
 
 
-		public Couse(String dept, String course, String section, boolean restricted, String email){
+		public Course(String dept, String course, String section, boolean restricted, String email){
 			this.dept = dept;
 			this.course = course;
 			this.section = section;
@@ -45,11 +45,15 @@ public class Cycler{
 
 			while((line = br.readLine()) != null){
 				String[] tokens = line.split("\\s");
-				if(tokens.length != )
+				if(tokens.length != NUM_ARGS){
+					throw new Exception("Arguments wrong in courses.txt");
+				}
+				Course c = new Course(tokens[0], tokens[1], tokens[2], tokens[3], tokens[4]);
+
 			}
 
 		}catch(Exception e){
-
+			System.out.println("ERROR: " + e);
 		}finally{
 			if(fr != null){
 				fr.close();
@@ -58,6 +62,13 @@ public class Cycler{
 
 	}
 
+	/** 
+	 * Given the html to the page, return true if available seat exists
+	 * Check course.restricted to see if you need to also check for restricted.
+	 */
+	public static boolean hasSeat(Course c, String html){
+
+	}
 
 	public static void main(String[] args) {
 		
